@@ -72,6 +72,7 @@ const copyDir = (src, dest) => {
 module.exports = {
   localhost,
   api,
+  copyDir,
   testConfig() {
     return jsonfile.readFileSync(path.join(appRoot.toString(), 'config', 'test_user.json'));
   },
