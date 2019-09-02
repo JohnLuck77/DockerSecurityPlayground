@@ -1,45 +1,57 @@
-﻿<div id="page-wrapper" >
-<h1 class="text-center"> VPN </h1>
-<hr>	
-<div id="page-inner">
-<table class="table table-bordered table-hover ">
-    <thead>
-      <tr>
-	<th>Name</th>
-	<th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="l in listVPN">
-	<td><div class="text-center">{{l}}</div></td>
-	<td>
-	<div class="row">
-		<div class="col-sm-6 text-center" ><a class="editing-components" >  <a target="_self" href uib-popover="Download" popover-trigger="'mouseenter'"  ng-click="download(l)" class="glyphicon glyphicon-download-alt	
-"> </span> </a> </div>
-		<div class="col-sm-6 text-center"><a class="editing-components" ><span uib-popover="Remove" popover-trigger="'mouseenter'" class="fa fa-remove" ng-click="remove(l)"> </span> </a> </div>
-	</div>
-	</td>
-      </tr>
-      
-	
+﻿<style id="compiled-css" type="text/css">
+.ace-notify { height: 500px; }
+</style>
+<div id="page-wrapper" >
+  <h1 class="text-center"> VPN </h1>
+  <hr>	
+  <div id="page-inner">
+    <table class="table table-bordered table-hover ">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="l in listVPN">
+          <td><div class="text-center">{{l}}</div></td>
+          <td>
+            <div class="row">
+              <div class="col-sm-6 text-center" ><a class="editing-components" >  <a target="_self" href uib-popover="Download" popover-trigger="'mouseenter'"  ng-click="download(l)" class="glyphicon glyphicon-download-alt	
+              "> </span> </a> </div>
+              <div class="col-sm-6 text-center"><a class="editing-components" ><span uib-popover="Remove" popover-trigger="'mouseenter'" class="fa fa-remove" ng-click="remove(l)"> </span> </a> </div>
+            </div>
+          </td>
+        </tr>
 
-    </tbody>
-  </table>
-<hr>
-		<form id="form-label-id" name="formVPN" class="form-horizontal" >
-		  <div class="form-group">
-		    <label class="control-label col-sm-2" for="nameLabel">New VPN</label>
-		    <div class="col-sm-4">
-		      <input type="text" class="form-control" ng-model="newVPN" id="nameLabel" >
-		    </div>
-          <div class="col-sm-2"><button ng-click="newVPN()" class="btn btn-success" >New</button></div>
-		  </div>
 
-		</form>
-</div>              
-     <!-- /. PAGE INNER  -->
-</div>
-	 <!--/. PAGE WRAPPER  -->
+
+      </tbody>
+    </table>
+    <hr>
+    <div class="ace-notify" ng-show="notify" ui-ace="{
+    theme: 'terminal',
+    mode: 'yaml'
+    }"
+                                            ng-model=notify
+                                            >
     </div>
+      <br />
+
+      <form id="form-label-id" name="formVPN" class="form-horizontal" >
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="nameLabel">New VPN</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" ng-model="newVPN" id="nameLabel" >
+          </div>
+            <div class="col-sm-2"><button ng-click="createVPN()" class="btn btn-success" >New</button></div>
+        </div>
+
+      </form>
+  </div>              
+  <!-- /. PAGE INNER  -->
+</div>
+<!--/. PAGE WRAPPER  -->
+</div>
 </div>
 </div>

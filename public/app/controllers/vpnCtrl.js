@@ -3,6 +3,7 @@ var dsp_vpnCtrl = function($scope, SafeApply, $routeParams, BreadCrumbs, SocketS
   };
   $scope.newVPN = "";
   $scope.listVPN = [];
+  $scope.notify = "";
   AjaxService.getAllVPN()
     .then(function s(response) {
       $scope.listVPN = response.data.data;
@@ -20,6 +21,31 @@ var dsp_vpnCtrl = function($scope, SafeApply, $routeParams, BreadCrumbs, SocketS
       }, function(err) {
         Notification(err.message, 'error');
       })
+  }
+  $scope.createVPN = function(vpnName) {
+    SocketService.manage(JSON.stringify({
+      action : 'vpn_create',
+      params : {
+        name : $scope.newVPN,
+      }
+    }), function(event) {
+      var data = JSON.parse(event.data);
+      switch (data.status) {
+        case 'success':
+          Notification("VPN Created", 'success');
+          $scope.notify ="";
+          $scope.listVPN.push($scope.newVPN);
+          break;
+        case 'error':
+          Notification({message: data.message}, 'error');
+          break;
+        default:
+          console.log("Update");
+          $scope.notify += data.message;
+          break
+
+      }
+    })
   }
   $scope.remove = function(vpnName) {
     console.log("remove");
