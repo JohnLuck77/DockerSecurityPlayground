@@ -93,7 +93,15 @@ function removeVPN(name, cb) {
   });
 }
 
-function getNames(testDir, cb) {
+function getNames(testDir, callback) {
+  const ignore = (f, s) => {
+    console.log(path.basename(f));
+    return true;
+  });
+  async.waterfall([
+    recursive(testDir, [ignoreFn], cb)
+  ], (err, data) => callback(err, data));
+
 }
 exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
