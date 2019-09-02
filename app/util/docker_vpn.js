@@ -93,15 +93,13 @@ function removeVPN(name, cb) {
   });
 }
 
-function getNames(testDir, callback) {
-  const ignore = (f, s) => {
-    console.log(path.basename(f));
-    return true;
-  });
-  async.waterfall([
-    recursive(testDir, [ignoreFn], cb)
-  ], (err, data) => callback(err, data));
-
+function getNames(vpnDir, callback) {
+async.waterfall([(cb) => fs.readdir(vpnDir, cb),
+  (data, cb) => {
+  cb(null, data.filter((d) => {
+    return path.extname(d) === ".ovpn";
+}).map((d) => path.parse(d).name));
+}], (err, data) => callback(err, data));
 }
 exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
