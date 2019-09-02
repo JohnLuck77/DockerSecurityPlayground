@@ -57,6 +57,9 @@ config/config_user.json
 public/downloads/**
 !public/downloads/.keep
 
+vpn/**
+!vpn/.keep
+
 test/test_user.json
 test/util/vpnDir
 
