@@ -174,6 +174,13 @@ self.init = function(onSuccess) {
       })
 
   }
+  self.getAllVPN = function() {
+    return $http.get(apiUrl+ "vpn");
+  }
+  self.getVPN = function(name) {
+    return $http.get(apiUrl+ "vpn/"+ name);
+
+  }
 
   self.getProjects = function() {
       return $http.get(apiUrl+'git-repos');

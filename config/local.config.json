@@ -4,6 +4,7 @@
     "dsp_reponame": "dsp_repo",
     "name_labelfile": "labels.json",
     "static_content": "../public/",
+    "vpn_dir": "vpn",
     "applicationRepo": "https://github.com/giper45/DockerSecurityPlayground.git",
     "repos": [
       {
