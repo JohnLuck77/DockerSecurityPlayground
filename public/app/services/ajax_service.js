@@ -174,47 +174,6 @@ self.init = function(onSuccess) {
       })
 
   }
-  self.getAllVPN = function() {
-    return $http.get(apiUrl+ "vpn");
-  }
-  self.getVPN = function(name) {
-    return $http.get(apiUrl+ "vpn/"+ name);
-  }
-  self.runVPN = function(vpnName) {
-    return $http.post(apiUrl+ "vpn/run", {
-      vpnName: vpnName
-    });
-  }
-  self.stopVPN = function(vpnName) {
-    return $http({
-            method: "DELETE",
-            headers: { 'content-type': "application/json;charset=UTF-8"},
-            url: apiUrl+ "vpn/run",
-            data: {
-      vpnName: vpnName
-      }});
-  }
-  self.detachFromVPN = function(vpnName, networkName) {
-    return $http({
-            method: "DELETE",
-            headers: { 'content-type': "application/json;charset=UTF-8"},
-            url: apiUrl+ "vpn/network",
-            data: {
-      vpnName: vpnName,
-      networkName : networkName
-      }});
-  }
-  self.attachToVPN = function(vpnName, networkName) {
-    return $http.post(apiUrl+ "vpn/network", {
-      networkName: networkName,
-      vpnName: vpnName
-    });
-  }
-
-  self.removeVPN = function(name) {
-    return $http.delete(apiUrl+ "vpn/"+name);
-  }
-
   self.getProjects = function() {
       return $http.get(apiUrl+'git-repos');
   }

@@ -203,12 +203,6 @@ app.delete('/api/tree/repo/', treeRoutes.deleteFile);
 // VPN API
 app.get('/dsp_v1/vpn', vpnHandler.getAll)
 app.get('/dsp_v1/vpn/:name', vpnHandler.get)
-app.post('/dsp_v1/vpn/network', vpnHandler.attach);
-app.delete('/dsp_v1/vpn/network', vpnHandler.detach);
-app.post('/dsp_v1/vpn/run', vpnHandler.run);
-app.delete('/dsp_v1/vpn/run', vpnHandler.stop);
-app.delete('/dsp_v1/vpn/:name', vpnHandler.remove)
-
 
 app.use('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
