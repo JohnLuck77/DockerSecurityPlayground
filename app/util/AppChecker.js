@@ -275,7 +275,7 @@ module.exports = {
     _handle(_.isString(data), new err(), callback);
   },
   checkAlphabetic(data, callback) {
-    const myRegEx  = /[^_a-z\d]/i;
+    const myRegEx  = /[^_\-a-z\d]/i;
     let isValid = !(myRegEx.test(data));
     if(isValid) {
       callback(null);

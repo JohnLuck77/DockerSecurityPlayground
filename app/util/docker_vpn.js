@@ -5,6 +5,7 @@ const log = appUtils.getLogger();
 const fs = require('fs');
 const path = require('path');
 const recursive  = require('recursive-readdir');
+const checker = require('./AppChecker');
 
 const vpnImage = "dockersecplayground/vpn:latest";
 const dspHostname = "localhost";
@@ -65,6 +66,7 @@ function ovpnGetClient(name, cb, notifyCallback) {
 function createVPN(name, outputPath, callback, notifyCallback) {
   // Create volume
   async.waterfall([
+    (cb) => checker.checkAlphabetic(name, cb),
     (cb) => removeVPN(name, cb),
     (cb) => createVolume(name, cb),
     (data, cb) => ovpnGenConfig(name, cb, notifyCallback),
@@ -77,7 +79,13 @@ function createVPN(name, outputPath, callback, notifyCallback) {
 }
 
 function getCertificateVPN(name, certificatesPath, callback) {
-  fs.readFile(path.join(certificatesPath, `${name}.ovpn`), callback);
+  checker.checkAlphabetic(name, (err) => {
+    if (err) {
+      callback(err);
+    } else {
+      fs.readFile(path.join(certificatesPath, `${name}.ovpn`), callback);
+    }
+  });
 }
 
 // TBD Remove certificate
@@ -94,12 +102,12 @@ function removeVPN(name, cb) {
 }
 
 function getNames(vpnDir, callback) {
-async.waterfall([(cb) => fs.readdir(vpnDir, cb),
-  (data, cb) => {
-  cb(null, data.filter((d) => {
-    return path.extname(d) === ".ovpn";
-}).map((d) => path.parse(d).name));
-}], (err, data) => callback(err, data));
+  async.waterfall([(cb) => fs.readdir(vpnDir, cb),
+    (data, cb) => {
+      cb(null, data.filter((d) => {
+        return path.extname(d) === ".ovpn";
+      }).map((d) => path.parse(d).name));
+    }], (err, data) => callback(err, data));
 }
 exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
