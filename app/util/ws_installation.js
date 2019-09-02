@@ -38,8 +38,12 @@ function installation(config, callback, notifyCallback) {
     },
     // Download a single docker image
     (cb) => {
-      log.info('Download single docker image');
-      dockerActions.downloadImages({name: 'dockersecplayground/alpine', tag: 'latest'}, null, cb, notifyCallback)
+      log.info('Download docker router image');
+      dockerActions.downloadImages({name: 'dockersecplayground/alpine_router', tag: 'v1.0'}, null, cb, notifyCallback)
+    },
+    (data, cb) => {
+      log.info('Download docker vpn image');
+      dockerActions.downloadImages({name: 'dockersecplayground/vpn', tag: 'latest'}, null, cb, notifyCallback)
     },
     (data, cb) => {
         const repos = c.repos;

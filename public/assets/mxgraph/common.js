@@ -38,25 +38,38 @@ function graphRenameProperty(cells, oldName, newName) {
 };
 
 // Update the name of the cell
-function Graph__update(cell, newName, oldName) {
-  var label = cell.value;
-  var $html = $('<div />',{html:label});
-  // replace "Headline" with "whatever" => Doesn't work
-  $html.find('h5').html(newName);
-  var newValue = $html.html();
-  theGraph.model.setValue(cell, newValue)
+// function Graph__update(cell, newName, oldName) {
+//   console.log("CEL");
+//   console.log(cell);
+//   var label = cell.value;
+//   var $html = $('<div />',{html:label});
+//   // replace "Headline" with "whatever" => Doesn't work
+//   $html.find('h5').html(newName);
+//   var newValue = $html.html();
+//   theGraph.model.setValue(cell, newValue)
 
-  // Update the cell id
-  cell.setId(newName);
-  var cells = theGraph.model.cells
-  // Rename cell in id
-  graphRenameProperty(cells, oldName, newName);
-  var cellWithOldName = getCellsByName(oldName);
-  _.each(cellWithOldName, function(e) {
-    e.name= newName;
+//   // Update the cell id
+//   cell.setId(newName);
+//   var cells = theGraph.model.cells
+//   // Rename cell in id
+//   graphRenameProperty(cells, oldName, newName);
+//   var cellWithOldName = getCellsByName(oldName);
+//   _.each(cellWithOldName, function(e) {
+//     e.name= newName;
+//   });
+//   // cells.remove(oldName);
+//   // cells.put(newName, cell);
+// }
+function Graph__updateConnections(cell, containerName) {
+  var interfaces = cell.children;
+  _.each(interfaces, function(i) {
+    if(i.edges) {
+      var edge = i.edges[0];
+      var networkName = edge.target.name;
+      var ip = Model__AppScope.getIpContainer(networkName, containerName);
+      theGraph.model.setValue(edge, ip);
+    }
   });
-  // cells.remove(oldName);
-  // cells.put(newName, cell);
 }
 
 function Graph__addPort(graph, v1, value, x, y, width, height, style, offsetX, offsetY, relative = true) {
@@ -131,6 +144,11 @@ function Graph__update(cell, newName, oldName) {
   var $html = $('<div />',{html:label});
   // replace "Headline" with "whatever" => Doesn't work
   $html.find('h5').html(newName);
+  // Change subnet
+  if (cell.type === "Network") {
+    var network = Model__AppScope.getNetwork(newName);
+    $html.find('h6').html(network.subnet);
+  }
   var newValue = $html.html();
   theGraph.model.setValue(cell, newValue)
 
@@ -189,9 +207,10 @@ function Graph__isValidXML(canvasXML) {
   }
 }
 
-function Graph__NetworkCreate(graph, nameNetwork, x, y) {
+function Graph__NetworkCreate(graph, i, x, y) {
   var parent = graph.getDefaultParent();
   console.log(parent);
+  console.log(i);
   var model = graph.getModel();
   var v1 = null;
   model.beginUpdate();
@@ -203,10 +222,10 @@ function Graph__NetworkCreate(graph, nameNetwork, x, y) {
     //
 var ne = {
       type: NETWORK_TYPE,
-      contentHTML : '<h5 class="no-selection">'+nameNetwork+'</h5>',
-      name: nameNetwork
+      contentHTML : '<h5 class="no-selection">'+i.name+'</h5><h6>'+ i.subnet +'</h6>',
+      name: i.name
     }
-    v1 = graph.insertVertex(parent, nameNetwork, ne, x, y, 120, 120, 'shape=cloud');
+    v1 = graph.insertVertex(parent, i.name, ne, x, y, 120, 120, 'shape=cloud');
 
 
     v1.setConnectable(true);
@@ -239,8 +258,6 @@ function Graph__CreateGraphFromStructure(data) {
   var containerListToDraw = data.clistToDraw
   var networkNames = networkList.map(a => a.name)
   var containerNames = containerListToDraw.map( c => c.name);
-  console.log(containerNames);
-  console.log(networkNames);
   // Create networks
   for (var i = 0; i < networkNames.length; i++) {
     Graph__NetworkCreate(theGraph, networkNames[i], 200, i*100);

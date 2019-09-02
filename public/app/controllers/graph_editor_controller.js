@@ -187,7 +187,11 @@ DSP_GraphEditorController : function DSP_GraphEditorController($scope,  $routePa
     $scope.n.name = networkName
     //Update informations network of containers
     containerManager.newNetworkOccurred(network)
+    return network;
   };
+  $scope.getNetwork = function(networkName) {
+    return NetworkManagerService.getNetwork(networkName);
+  }
 
   $scope.goBack = function() {
     var urlToGo = '/lab/use/'+ AjaxService.config.name +'/'+ $scope.labName;
@@ -515,6 +519,14 @@ window.location.href = urlToGo;
       }
   }
 
+  $scope.getIpContainer = function getIpContainer(networkName, containerName) {
+    var container = containerManager.getContainer(containerName);
+    return (container.networks[networkName].isDynamic) ? "DHCP" : container.networks[networkName].ip;
+  }
+  $scope.getContainer = function getContainer(containerName) {
+    return containerManager.getContainer(containerName);
+  }
+
   $scope.attachNetwork = function attachNetwork(nameNetwork, containerName) {
     var ip = NetworkManagerService.getFirst(nameNetwork)
     var container = containerManager.getContainer(containerName);
@@ -564,10 +576,10 @@ window.location.href = urlToGo;
   }
 
   //Select a container to draw
-  $scope.selectContainerAction = function selectContainerAction(e)
+  $scope.selectContainerAction = function selectContainerAction(name)
   {
-    var nameSelected = e.currentTarget.id;
-    var eSelected =_.where($scope.containerListNotToDraw, {name:nameSelected})[0];
+    var nameSelected = name;
+    var eSelected =_.where($scope.containerListToDraw, {name:nameSelected})[0];
     //Get networks
     var networks = eSelected.networks;
     var networkToDraw = [];
@@ -593,18 +605,20 @@ window.location.href = urlToGo;
     //Graph networkList : {name,color , position}
     if(eSelected)
     {
-      $scope.containerToDraw = {
-        name : eSelected.name,
-        icon : eSelected.selectedImage.icon,
-        networkList : networkToDraw,
-        ports : eSelected.ports
+      // $scope.containerToDraw = {
+      //   name : eSelected.name,
+      //   icon : eSelected.selectedImage.icon,
+      //   networkList : networkToDraw,
+      //   ports : eSelected.ports
 
-      }
+      // }
       //UPDATE CONTAINER TO DRAW
+    safeApplyService.exec($scope, function() {
       $scope.containerDescription = eSelected;
+    });
     }
-
   }
+
   $scope.changeContainerIP = function changeContainerIP(e,c, networkName) {
     //Ip in option
     var ipSelected = e.currentTarget.value
