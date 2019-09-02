@@ -44,6 +44,7 @@ mxBasePath = 'assets/mxgraph/';
     <script src="assets/js/angular-messages.min.js"></script>
     <script src="assets/js/angular-material.min.js"></script>
     <script src="assets/js/angular-aria.min.js"></script>
+    <script src="assets/js/angular-file-saver.bundle.js"></script>
     <script src="assets/js/loading-bar.js"></script>
     <script type="text/javascript" src="assets/js/ng-file-upload-shim.js"></script>
     <script type="text/javascript" src="assets/js/ng-file-upload.js"></script>
@@ -82,6 +83,7 @@ mxBasePath = 'assets/mxgraph/';
     <script src="app/controllers/labCtrl.js"> </script>
     <script src="app/controllers/labelsCtrl.js"> </script>
     <script src="app/controllers/imagesCtrl.js"> </script>
+    <script src="app/controllers/vpnCtrl.js"> </script>
     <script src="app/controllers/dockerfileCtrl.js"> </script>
     <script src="app/controllers/repoCtrl.js"> </script>
     <script src="app/controllers/docker_tools_controller.js"></script>
@@ -127,7 +129,7 @@ underscore.factory('_', function() {
 return window._; //Underscore must already be loaded on the page
 });
 //ANGULAR COMPONENT REGISTRATION 
-angular.module("myApp", ['ui.tinymce', 'jsTree.directive',  'chieffancypants.loadingBar', 'ngAnimate', 'ngWebSocket', 'underscore', 'ngSanitize', 'ui.bootstrap', 'ui.select', 'ui-notification', 'ui.ace', 'ngRoute', 'colorpicker.module', 'ngMaterial', 'ngMessages','material.svgAssetsCache', 'ngFileUpload'] )
+angular.module("myApp", ['ui.tinymce', 'jsTree.directive',  'chieffancypants.loadingBar', 'ngAnimate', 'ngWebSocket', 'underscore', 'ngSanitize', 'ui.bootstrap', 'ui.select', 'ui-notification', 'ui.ace', 'ngRoute', 'colorpicker.module', 'ngMaterial', 'ngMessages','material.svgAssetsCache', 'ngFileUpload', 'ngFileSaver'] )
   .directive('fileModel', ['$parse', function ($parse) {
 return {
 restrict: 'A',
@@ -195,6 +197,8 @@ return _factory;
   .controller("dockerfileCtrl", dsp_dockerfileCtrl)
   .controller('actionController', DSP_GraphEditorController)
   .controller('DockerToolsCtrl', DSP_DockerToolsCtrl)
+  .controller('vpnCtrl', dsp_vpnCtrl)
+
   .controller("repoCtrl", dsp_RepoCtrl)
   .run(['$anchorScroll', function($anchorScroll) {
 $anchorScroll.yOffset = 50;   // always scroll by 50 extra pixels
@@ -254,6 +258,10 @@ templateUrl: "views/labels.html" ,
   .when("/configuration", {
 templateUrl: "views/configuration.html" ,
   controller: "configCtrl"
+})
+  .when("/vpn", {
+templateUrl: "views/vpn.html" ,
+  controller: "vpnCtrl"
 })
   .when("/images", {
 templateUrl: "views/images.html" ,
