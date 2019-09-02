@@ -90,8 +90,10 @@ function Graph__setRemoveHandler(canRemove) {
 
 function graphEditCallback(oldName, newName) {
   var theCell = theGraph.getModel().getCell(oldName);
+  console.log("IN GRAPH EDIT");
   // Update the cell name
   Graph__update(theCell, newName, oldName);
+  Graph__updateConnections(theCell, newName)
 }
 
 function _incrementID(id, names, stringBase) {
@@ -112,9 +114,8 @@ function _incrementID(id, names, stringBase) {
 // Create a new element and update angular model
 function Model__ElementCreate(nameContainer) {
   var nameContainer = Model__CONTAINER_BASENAME + Model__currentElementID;
-  console.log("add new element");
   // Update elementID
-  while (Model__AppScope.containerExists(nameContainer)) {
+while (Model__AppScope.containerExists(nameContainer)) {
     Model__currentElementID++;
     nameContainer = Model__CONTAINER_BASENAME + Model__currentElementID;
   }
@@ -126,8 +127,8 @@ function Model__NetworkCreate() {
   var nameNetwork = Model__NETWORK_BASENAME + Model__networkID;
   // Model__AppScope.newContainer(nameContainer);
   Model__networkID++;
-  Model__AppScope.addNetworkElement(nameNetwork);
-  return nameNetwork;
+  var i = Model__AppScope.addNetworkElement(nameNetwork);
+  return {name: nameNetwork, subnet: i.subnet};
 }
 
 
@@ -148,8 +149,8 @@ function _addSidebarElment(graph, sidebar, icon, labelText, fnCreateModel, fnCre
   // the graph. The cell argument points to the cell under
   // the mousepointer if there is one.
   var funct = function(graph, evt, cell, x, y) {
-    var nameContainer = fnCreateModel();
-    fnCreateGraph(graph, nameContainer, x, y);
+    var info = fnCreateModel();
+    fnCreateGraph(graph, info, x, y);
   }
 
   const Graph__NetworkElementImage = icon;
@@ -243,8 +244,8 @@ function addSidebarNetworkIcon(graph, sidebar) {
   // the graph. The cell argument points to the cell under
   // the mousepointer if there is one.
   var funct = function(graph, evt, cell, x, y) {
-    var nameNetwork = Model__NetworkCreate();
-    Graph__NetworkCreate(graph, nameNetwork, x, y);
+    var info = Model__NetworkCreate();
+    Graph__NetworkCreate(graph, info, x, y);
   }
 
   const Graph__NetworkImage =  'assets/docker_image_icons/network_icon.png';
@@ -460,6 +461,16 @@ function mxInitGraph(graph, appScope) {
     Model__AppScope.attachNetwork(target.name, source.name);
     return mxCreateEdge.apply(this, arguments);
   }
+  var mxAddEdge= mxGraph.prototype.addEdge;
+  mxGraph.prototype.addEdge = function(edge, parent, source, target, index) {
+    var nameContainer = source.name;
+    var nameNetwork = target.name;
+    // Get ip container
+    var ip = Model__AppScope.getIpContainer(nameNetwork, nameContainer);
+    edge.value = ip;
+    return mxAddEdge.apply(this, arguments);
+  }
+
   // Override remove edge
   mxRemoveEdge = mxCell.prototype.removeEdge
   mxCell.prototype.removeEdge = function(edge, isOutgoing) {
@@ -585,6 +596,13 @@ function mxInitGraph(graph, appScope) {
 
   // Disable double click
   graph.dblClick = function(evt, cell) {
+  }
+  graph.click = function(evt, cell) {
+    if (evt.sourceState && evt.sourceState.cell && evt.sourceState.cell.type == "NetworkElement") {
+      console.log("Clicked network element");
+      var name = evt.sourceState.cell.name;
+      Model__AppScope.selectContainerAction(name);
+    }
   }
 
 

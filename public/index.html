@@ -115,6 +115,11 @@ mxBasePath = 'assets/mxgraph/';
 
     <script src="assets/jstree/jstree.js"></script>
     <script src="app/components/jsTree.directive.js"></script>
+     <!-- Angular filters -->
+	   <script src="app/components/appFilters.js"> </script>
+	   <script src="app/components/isolatedForm.directive.js"> </script>
+
+
 
 
     <script>
@@ -139,6 +144,7 @@ modelSetter(scope, element[0].files[0]);
 }
 };
 }])
+	.filter('basenameFilter', basenameFilter)
   .filter('depends', function() {
 return function(input, currentContainerName) {
 console.log("IN FILTER");

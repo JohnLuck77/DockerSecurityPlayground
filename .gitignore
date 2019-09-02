@@ -58,6 +58,7 @@ public/downloads/**
 !public/downloads/.keep
 
 test/test_user.json
+test/util/vpnDir
 
 # UltiSnip vim plugin
 UltiSnips
