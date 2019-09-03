@@ -27,6 +27,8 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
     theme : 'modern'
   };
   $scope.listVPN = [];
+  $scope.selectedNetwork = {};
+  $scope.selectedVPN = {};
 
   vm.tinymceHtmlGoal=''
   vm.tinymceHtmlSolution=''
@@ -605,6 +607,26 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
 
   //Nothing to do
   $scope.loading = function loading() {}
+
+  $scope.attach = function attach() {
+    console.log("In attach");
+    AjaxService.attachToVPN($scope.selectedVPN, $scope.selectedNetwork)
+      .then(function successCallback(response) {
+        Notification("VPN Attached");
+      }, function errorCallback(error) {
+        console.log(error);
+        Notification({message:"Server error: "+error.data.message}, 'error');
+      });
+  }
+
+  $scope.changedNetwork = function (n) {
+    $scope.selectedNetwork = n.name;
+  }
+
+  $scope.changedVPN = function (v) {
+    $scope.selectedVPN = v;
+  }
+
 
 
   function startLoad() {
