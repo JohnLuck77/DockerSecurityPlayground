@@ -203,6 +203,7 @@ app.delete('/api/tree/repo/', treeRoutes.deleteFile);
 // VPN API
 app.get('/dsp_v1/vpn', vpnHandler.getAll)
 app.get('/dsp_v1/vpn/:name', vpnHandler.get)
+app.post('/dsp_v1/vpn/attach', vpnHandler.attach);
 app.delete('/dsp_v1/vpn/:name', vpnHandler.remove)
 
 

@@ -180,6 +180,13 @@ self.init = function(onSuccess) {
   self.getVPN = function(name) {
     return $http.get(apiUrl+ "vpn/"+ name);
   }
+  self.attachToVPN = function(vpnName, networkName) {
+    return $http.post(apiUrl+ "vpn/attach", {
+      networkName: networkName,
+      vpnName: vpnName
+    });
+  }
+
   self.removeVPN = function(name) {
     return $http.delete(apiUrl+ "vpn/"+name);
   }
