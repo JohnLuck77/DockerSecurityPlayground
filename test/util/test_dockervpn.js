@@ -7,6 +7,9 @@ const path = require('path');
 const rimraf = require('rimraf');
 const fsExtra= require('fs-extra');
 const helper = require('../helper.js');
+const util = require('util');
+const execSync = util.promisify(require('child_process').execSync);
+
 
 
 
@@ -20,6 +23,10 @@ const testDirTpl = path.join(appRoot.toString(), "test", "util", "vpnDirTpl");
 
 
 describe('Test docker vpn', () => {
+  before((done) => {
+    execSync("docker volume create existent");
+    done();
+  });
   beforeEach((done) => {
     chai.use(chaiFS);
     if (fs.existsSync(testDir)) {
@@ -28,7 +35,7 @@ describe('Test docker vpn', () => {
     helper.copyDir(testDirTpl, testDir);
     done();
   });
-  it('Should create vpn', (done) => {
+  it.only('Should create vpn', (done) => {
     expect(true).to.be.ok
     dockerVPN.createVPN("dsp-ovpn", testDir, (err, data) => {
       expect(err).to.be.null;
@@ -57,5 +64,16 @@ describe('Test docker vpn', () => {
       expect(data).to.be.eql(names);
       done();
     });
+  });
+  it.only('Should remove existent', (done) => {
+    dockerVPN.removeVPN('existent', testDir, (err, data) => {
+      expect(err).to.be.null;
+      expect(path.join(appRoot.toString(), "test", "util" ,"vpnDir", "existent.ovpn")).to.not.be.path();
+      done();
+    });
+  });
+  after((done) => {
+    // execSync("docker volume rm existent");
+    done();
   });
 });

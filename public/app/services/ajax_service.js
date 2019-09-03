@@ -179,7 +179,9 @@ self.init = function(onSuccess) {
   }
   self.getVPN = function(name) {
     return $http.get(apiUrl+ "vpn/"+ name);
-
+  }
+  self.removeVPN = function(name) {
+    return $http.delete(apiUrl+ "vpn/"+name);
   }
 
   self.getProjects = function() {
