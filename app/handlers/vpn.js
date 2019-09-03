@@ -21,7 +21,16 @@ function get(req, res) {
   ], (err, data) => httpHelper.response(res, err, data.toString()));
 }
 
+function remove(req, res) {
+  async.waterfall([
+    // Check if repo dir parameter exists
+    (cb) => Checker.checkParams(req.params, ['name'], cb),
+    (cb) => dockerVPN.removeVPN(req.params.name, vpnDir, cb)
+  ], (err, data) => httpHelper.response(res, err))
+}
+
 
 exports.getAll = getAll;
 exports.get = get;
+exports.remove = remove;
 exports.version = '0.1.0';
