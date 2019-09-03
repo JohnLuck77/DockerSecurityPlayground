@@ -6,6 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const recursive  = require('recursive-readdir');
 const checker = require('./AppChecker');
+const pathExists = require('path-exists');
+
 
 const vpnImage = "dockersecplayground/vpn:latest";
 const dspHostname = "localhost";
@@ -24,8 +26,8 @@ function ovpnGenConfig(name, cb, notifyCallback) {
     ],
     cmd: `ovpn_genconfig -u udp://${dspHostname}`
   }
-  dockerJS.run(vpnImage, cb, options, notifyCallback);
-}
+    dockerJS.run(vpnImage, cb, options, notifyCallback);
+  }
 function ovpnInitPki(name, cb, notifyCallback) {
   log.info("[DOCKER VPN] Init Pki");
   var options = {
@@ -48,8 +50,8 @@ function ovpnGenClient(name, cb, notifyCallback) {
     ],
     cmd: `easyrsa build-client-full ${name}  nopass`
   }
-  dockerJS.run(vpnImage, cb, options, notifyCallback);
-}
+    dockerJS.run(vpnImage, cb, options, notifyCallback);
+  }
 
 function ovpnGetClient(name, cb, notifyCallback) {
   var options = {
@@ -60,14 +62,14 @@ function ovpnGetClient(name, cb, notifyCallback) {
     ],
     cmd: `ovpn_getclient ${name}`
   }
-  dockerJS.run(vpnImage, cb, options, notifyCallback);
-}
+    dockerJS.run(vpnImage, cb, options, notifyCallback);
+  }
 
 function createVPN(name, outputPath, callback, notifyCallback) {
   // Create volume
   async.waterfall([
     (cb) => checker.checkAlphabetic(name, cb),
-    (cb) => removeVPN(name, cb),
+    (cb) => removeVPN(name, outputPath, cb),
     (cb) => createVolume(name, cb),
     (data, cb) => ovpnGenConfig(name, cb, notifyCallback),
     (data, cb) => ovpnInitPki(name, cb, notifyCallback),
@@ -89,14 +91,27 @@ function getCertificateVPN(name, certificatesPath, callback) {
 }
 
 // TBD Remove certificate
-function removeVPN(name, cb) {
+function removeVPN(name, vpnDir, callback) {
   log.info("[DOCKER VPN] Remove previous volume");
-  dockerJS.removeVolume(name, (err) => {
+  async.waterfall([
+  (cb) => checker.checkAlphabetic(name,  cb),
+  (cb) => {
+    pathExists(path.join(vpnDir, `${name}.ovpn`))
+    .then((exists) => {
+      if (exists) {
+        fs.unlink(path.join(vpnDir, `${name}.ovpn`), cb);
+      } else {
+        cb(null);
+      }
+    });
+  },
+  (cb) => dockerJS.removeVolume(name, (cb))
+  ], (err) => {
     // Skip if volume already does not exists
     if(err && err.message.includes("No such volume")) {
-      cb(null);
+      callback(null);
     } else {
-      cb(err);
+      callback(err);
     }
   });
 }

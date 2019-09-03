@@ -1,4 +1,4 @@
-var dsp_vpnCtrl = function($scope, SafeApply, $routeParams, BreadCrumbs, SocketService, $uibModal, Constants, ServerResponse, Notification,$http,CurrentLabService , $location, AjaxService, FileSaver, Blob) {
+var dsp_vpnCtrl = function($scope, SafeApply, $uibModal, SocketService, Notification, AjaxService, FileSaver, Blob) {
   function downloadFile(nameFile, content) {
   };
   $scope.newVPN = "";
@@ -47,7 +47,32 @@ var dsp_vpnCtrl = function($scope, SafeApply, $routeParams, BreadCrumbs, SocketS
       }
     })
   }
-  $scope.remove = function(vpnName) {
+  $scope.removeVPN = function(vpnName) {
     console.log("remove");
+    var p = { name : vpnName};
+    var modalInstance = $uibModal.open({
+      component: 'modalComponent',
+      resolve: {
+        lab: function () {
+          return p;
+        }
+      }
+    });
+
+    //Cancel image
+    modalInstance.result.then(function ok() {
+      var nameToDelete = p.name;
+      console.log(AjaxService);
+      AjaxService.removeVPN(nameToDelete)
+        .then(function s(response) {
+          $scope.listVPN = _.without($scope.listVPN, nameToDelete);
+        }, function e(data) {
+          Notification({message: data.message}, 'error');
+        })
+    }, function no() {
+      console.log("NO");
+    });
+
+
   }
 }
