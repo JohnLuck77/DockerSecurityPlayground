@@ -119,14 +119,15 @@ function getInfoContainer(nameContainer, callback) {
   dockerJS.getInfoContainer(nameContainer, callback);
 }
 function isAllowedNetwork(nameLab, networkName) {
-      const nameWithoutLabName = networkName.replace(`${nameLab}_`, '');
-      let isAllowed = false;
-      _.each(allowedNetworks, (an) => {
-        if(nameWithoutLabName.startsWith(an)) {
-          isAllowed = true;
-        }
-      });
-      return isAllowed
+      return true;
+      // const nameWithoutLabName = networkName.replace(`${nameLab}_`, '');
+      // let isAllowed = false;
+      // _.each(allowedNetworks, (an) => {
+      //   if(nameWithoutLabName.startsWith(an)) {
+      //     isAllowed = true;
+      //   }
+      // });
+      // return isAllowed
 }
 
 function __getLabNetwork(nameLab, networks) {
