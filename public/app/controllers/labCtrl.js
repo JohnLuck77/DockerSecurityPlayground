@@ -26,6 +26,7 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
     skin: 'lightgray',
     theme : 'modern'
   };
+  $scope.listVPN = [];
 
   vm.tinymceHtmlGoal=''
   vm.tinymceHtmlSolution=''
@@ -53,6 +54,14 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
   $scope.listContainers = {};
   $scope.init = function() {
     console.log("DSP_INIT");
+
+  // Get vpn
+  AjaxService.getAllVPN()
+    .then(function s(response) {
+      $scope.listVPN = response.data.data;
+    }, function(err) {
+      Notification(err.message, 'error');
+    })
 
     AjaxService.init()
       .dLabel
