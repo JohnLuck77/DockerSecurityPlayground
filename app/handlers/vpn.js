@@ -11,7 +11,7 @@ const dockerJS = require('mydockerjs').docker;
 
 // User walker to explore all project
 function getAll(req, res) {
-  dockerVPN.getNames(vpnDir, (err, data) => {
+  dockerVPN.getAllVPN(vpnDir, (err, data) => {
     httpHelper.response(res, err, data);
   });
 }
@@ -56,6 +56,8 @@ function run(req, res) {
   ], (err) => httpHelper.response(res, err));
 }
 function stop(req, res) {
+  console.log("REQ");
+  console.log(req.body);
   async.waterfall([
     // Check if repo dir parameter exists
     (cb) => Checker.checkParams(req.body, ['vpnName'], cb),

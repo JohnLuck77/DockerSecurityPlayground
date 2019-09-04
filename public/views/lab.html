@@ -174,7 +174,7 @@
 									 ng-model="selectedVPN" 
 									 ng-change="changedVPN(selectedVPN)" 
 									 ng-required=true
-									 ng-options="il for il in listVPN" class="form-control select_style" id="selector_imagelist"> 
+									 ng-options="il.name for il in listVPN" class="form-control select_style" id="selector_imagelist"> 
 								</select>
 							</div>
 						</div>

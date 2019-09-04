@@ -60,7 +60,10 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
   // Get vpn
   AjaxService.getAllVPN()
     .then(function s(response) {
-      $scope.listVPN = response.data.data;
+      $scope.listVPN = _.filter(response.data.data, function(v) {
+        console.log(v);
+        return v.isRunning;
+      });
     }, function(err) {
       Notification(err.message, 'error');
     })
@@ -610,6 +613,7 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
 
   $scope.attach = function attach() {
     console.log("In attach");
+    console.log($scope.selectedNetwork);
     AjaxService.attachToVPN($scope.selectedVPN, $scope.selectedNetwork)
       .then(function successCallback(response) {
         Notification("VPN Attached");
