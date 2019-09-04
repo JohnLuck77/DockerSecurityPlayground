@@ -14,12 +14,14 @@
       </thead>
       <tbody>
         <tr ng-repeat="l in listVPN">
-          <td><div class="text-center">{{l}}</div></td>
+          <td><div class="text-center">{{l.name}}</div></td>
           <td>
             <div class="row">
-              <div class="col-sm-6 text-center" ><a class="editing-components" >  <a target="_self" href uib-popover="Download" popover-trigger="'mouseenter'"  ng-click="download(l)" class="glyphicon glyphicon-download-alt	
+              <div ng-show="!l.isRunning" class="col-sm-4 text-center" ><a target="_self" href uib-popover="Run" popover-trigger="'mouseenter'"  ng-click="run(l.name)" class="glyphicon glyphicon-play"> </span> </a> </div>
+              <div ng-show="l.isRunning" class="col-sm-4 text-center" ><a class="editing-components" >  <a target="_self" href uib-popover="Stop" popover-trigger="'mouseenter'"  ng-click="stop(l.name)" class="glyphicon glyphicon-stop"> </span> </a> </div>
+              <div class="col-sm-4 text-center" ><a class="editing-components" >  <a target="_self" href uib-popover="Download" popover-trigger="'mouseenter'"  ng-click="download(l.name)" class="glyphicon glyphicon-download-alt	
               "> </span> </a> </div>
-              <div class="col-sm-6 text-center"><a class="editing-components" ><span uib-popover="Remove" popover-trigger="'mouseenter'" class="fa fa-remove" ng-click="removeVPN(l)"> </span> </a> </div>
+              <div class="col-sm-4 text-center"><a class="editing-components" ><span uib-popover="Remove" popover-trigger="'mouseenter'" class="fa fa-remove" ng-click="removeVPN(l.name)"> </span> </a> </div>
             </div>
           </td>
         </tr>

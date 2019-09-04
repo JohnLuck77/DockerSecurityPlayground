@@ -82,11 +82,12 @@ function runVPN(vpnName, hostPort, cb) {
   dockerJS.run(vpnImage, cb, options);
 }
 function stopVPN(vpnName, cb) {
-  dockerJS.rm(vpnName, cb, true);
+  dockerJS.rm(prefixVPN + vpnName, cb, true);
 }
 
 function createVPN(name, outputPath, callback, notifyCallback) {
   log.info("[DOCKER VPN] Create VPN");
+  var theName = prefixVPN + name;
   // Create volume
   async.waterfall([
     (cb) => checker.checkAlphabetic(name, cb),
@@ -96,7 +97,7 @@ function createVPN(name, outputPath, callback, notifyCallback) {
     (data, cb) => ovpnInitPki(name, cb, notifyCallback),
     (data, cb) => ovpnGenClient(name, cb, notifyCallback),
     (data, cb) => ovpnGetClient(name, cb, notifyCallback),
-    (data, cb) =>  fs.writeFile(path.join(outputPath, `${name}.ovpn`), data, cb)
+    (data, cb) =>  fs.writeFile(path.join(outputPath, `${theName}.ovpn`), data, cb)
   ], (err, data) => {
     callback(err, data)});
 }
