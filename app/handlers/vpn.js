@@ -35,8 +35,31 @@ function attach(req, res) {
   async.waterfall([
     // Check if repo dir parameter exists
     (cb) => Checker.checkParams(req.body, ['networkName', 'vpnName'], cb),
+    // (cb) => dockerVPN.runVPN(req.body.vpnName, 1194, cb),
+    (cb) => dockerJS.connectToNetwork(req.body.vpnName, req.body.networkName, cb)
+  ], (err) => httpHelper.response(res, err));
+}
+function detach(req, res) {
+  async.waterfall([
+    // Check if repo dir parameter exists
+    (cb) => Checker.checkParams(req.body, ['networkName', 'vpnName'], cb),
+    // (cb) => dockerVPN.runVPN(req.body.vpnName, 1194, cb),
+    (cb) => dockerJS.disconnectFromNetwork(req.body.vpnName, req.body.networkName, cb)
+  ], (err) => httpHelper.response(res, err));
+}
+
+function run(req, res) {
+  async.waterfall([
+    // Check if repo dir parameter exists
+    (cb) => Checker.checkParams(req.body, ['vpnName'], cb),
     (cb) => dockerVPN.runVPN(req.body.vpnName, 1194, cb),
-    (data, cb) => dockerJS.connectToNetwork(req.body.vpnName, req.body.networkName, cb)
+  ], (err) => httpHelper.response(res, err));
+}
+function stop(req, res) {
+  async.waterfall([
+    // Check if repo dir parameter exists
+    (cb) => Checker.checkParams(req.body, ['vpnName'], cb),
+    (cb) => dockerVPN.stopVPN(req.body.vpnName, cb),
   ], (err) => httpHelper.response(res, err));
 }
 
@@ -45,4 +68,7 @@ exports.getAll = getAll;
 exports.get = get;
 exports.remove = remove;
 exports.attach = attach;
+exports.detach = detach;
+exports.run = run;
+exports.stop = stop;
 exports.version = '0.1.0';

@@ -7,6 +7,7 @@ const path = require('path');
 const recursive  = require('recursive-readdir');
 const checker = require('./AppChecker');
 const pathExists = require('path-exists');
+const prefixVPN = "dsp-vpn-";
 
 
 const vpnImage = "dockersecplayground/vpn:latest";
@@ -14,7 +15,7 @@ const dspHostname = "localhost";
 
 function createVolume(name, cb) {
   log.info("[DOCKER VPN] Create Volume");
-  dockerJS.createVolume(name, cb);
+  dockerJS.createVolume(prefixVPN + name, cb);
 }
 function ovpnGenConfig(name, cb, notifyCallback) {
   log.info("[DOCKER VPN] Generate Configuration ");
@@ -22,60 +23,66 @@ function ovpnGenConfig(name, cb, notifyCallback) {
     logDriver: "none",
     rm: true,
     volumes: [
-      {hostPath: name, containerPath: "/etc/openvpn"}
+      {hostPath: prefixVPN + name, containerPath: "/etc/openvpn"}
     ],
     cmd: `ovpn_genconfig -u udp://${dspHostname}`
   }
-    dockerJS.run(vpnImage, cb, options, notifyCallback);
-  }
+  dockerJS.run(vpnImage, cb, options, notifyCallback);
+}
 function ovpnInitPki(name, cb, notifyCallback) {
   log.info("[DOCKER VPN] Init Pki");
   var options = {
     logDriver: "none",
     rm: true,
     volumes: [
-      {hostPath: name, containerPath: "/etc/openvpn"}
+      {hostPath: prefixVPN + name, containerPath: "/etc/openvpn"}
     ],
     cmd: "ovpn_initpki"
   }
   dockerJS.run(vpnImage, cb, options, notifyCallback);
 }
 function ovpnGenClient(name, cb, notifyCallback) {
+  var theName = prefixVPN + name;
   log.info("[DOCKER VPN] Generate Client");
   var options = {
     logDriver: "none",
     rm: true,
     volumes: [
-      {hostPath: name, containerPath: "/etc/openvpn"}
+      {hostPath: theName, containerPath: "/etc/openvpn"}
     ],
-    cmd: `easyrsa build-client-full ${name}  nopass`
+    cmd: `easyrsa build-client-full ${theName}  nopass`
   }
-    dockerJS.run(vpnImage, cb, options, notifyCallback);
-  }
+  dockerJS.run(vpnImage, cb, options, notifyCallback);
+}
 
 function ovpnGetClient(name, cb, notifyCallback) {
+  var theName = prefixVPN + name;
   var options = {
     logDriver: "none",
     rm: true,
     volumes: [
-      {hostPath: name, containerPath: "/etc/openvpn"}
+      {hostPath: theName, containerPath: "/etc/openvpn"}
     ],
-    cmd: `ovpn_getclient ${name}`
+    cmd: `ovpn_getclient ${theName}`
   }
-    dockerJS.run(vpnImage, cb, options, notifyCallback);
-  }
+  dockerJS.run(vpnImage, cb, options, notifyCallback);
+}
 function runVPN(vpnName, hostPort, cb) {
-  log.info(`[DOCKER VPN] Run ${vpnName} VPN towards `);
+  var theName = prefixVPN + vpnName;
+  log.info(`[DOCKER VPN] Run ${theName} VPN  `);
   var options = {
-    name: vpnName,
+    name: theName,
     detached: true,
     cap_add: "NET_ADMIN",
     ports: { '1194/udp': hostPort},
     volumes: [
-      {hostPath: vpnName, containerPath: "/etc/openvpn"}
+      {hostPath: theName, containerPath: "/etc/openvpn"}
     ]
   }
-    dockerJS.run(vpnImage, cb, options);
+  dockerJS.run(vpnImage, cb, options);
+}
+function stopVPN(vpnName, cb) {
+  dockerJS.rm(vpnName, cb, true);
 }
 
 function createVPN(name, outputPath, callback, notifyCallback) {
@@ -95,11 +102,12 @@ function createVPN(name, outputPath, callback, notifyCallback) {
 }
 
 function getCertificateVPN(name, certificatesPath, callback) {
+  var theName = prefixVPN + name;
   checker.checkAlphabetic(name, (err) => {
     if (err) {
       callback(err);
     } else {
-      fs.readFile(path.join(certificatesPath, `${name}.ovpn`), callback);
+      fs.readFile(path.join(certificatesPath, `${theName}.ovpn`), callback);
     }
   });
 }
@@ -107,19 +115,20 @@ function getCertificateVPN(name, certificatesPath, callback) {
 // TBD Remove certificate
 function removeVPN(name, vpnDir, callback) {
   log.info("[DOCKER VPN] Remove previous volume");
+  var theName = prefixVPN + name;
   async.waterfall([
-  (cb) => checker.checkAlphabetic(name,  cb),
-  (cb) => {
-    pathExists(path.join(vpnDir, `${name}.ovpn`))
-    .then((exists) => {
-      if (exists) {
-        fs.unlink(path.join(vpnDir, `${name}.ovpn`), cb);
-      } else {
-        cb(null);
-      }
-    });
-  },
-  (cb) => dockerJS.removeVolume(name, (cb))
+    (cb) => checker.checkAlphabetic(name,  cb),
+    (cb) => {
+      pathExists(path.join(vpnDir, `${theName}.ovpn`))
+        .then((exists) => {
+          if (exists) {
+            fs.unlink(path.join(vpnDir, `${theName}.ovpn`), cb);
+          } else {
+            cb(null);
+          }
+        });
+    },
+    (cb) => dockerJS.removeVolume(theName, (cb))
   ], (err) => {
     // Skip if volume already does not exists
     if(err && err.message.includes("No such volume")) {
@@ -135,11 +144,34 @@ function getNames(vpnDir, callback) {
     (data, cb) => {
       cb(null, data.filter((d) => {
         return path.extname(d) === ".ovpn";
-      }).map((d) => path.parse(d).name));
+      }).map((d) => path.parse(d).name.replace(prefixVPN, "")));
     }], (err, data) => callback(err, data));
 }
+function getAllVPN(vpnDir, callback) {
+  async.waterfall([(cb) => getNames(vpnDir, cb),
+    (names, cb) => cb(null, names.map((n) => {
+      return {
+        name: n
+      }
+    })),
+    (namesObj, cb) => {
+      async.eachSeries(namesObj, (n, c) => {
+        dockerJS.isRunning(prefixVPN + n.name, (err, isRunning) => {
+          if (err) {
+            c(err);
+          } else {
+            n.isRunning = isRunning;
+            c(null);
+          }
+        });
+      }, (err) => cb(err, namesObj));
+    }], (err, data) => callback(err, data));
+}
+
 exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
 exports.getNames = getNames;
+exports.getAllVPN = getAllVPN;
 exports.removeVPN = removeVPN;
 exports.runVPN = runVPN;
+exports.stopVPN = stopVPN;
