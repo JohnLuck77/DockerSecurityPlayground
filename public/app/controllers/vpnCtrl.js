@@ -7,10 +7,35 @@ var dsp_vpnCtrl = function($scope, SafeApply, $uibModal, SocketService, Notifica
   AjaxService.getAllVPN()
     .then(function s(response) {
       $scope.listVPN = response.data.data;
+      console.log($scope.listVPN);
     }, function(err) {
       Notification(err.message, 'error');
     })
 
+
+  $scope.run = function(vpnName) {
+    AjaxService.runVPN(vpnName)
+      .then(function s(response) {
+        Notification("VPN server is Running" , 'success');
+        _.each($scope.listVPN, function (v) {
+          if (v.name == vpnName) v.isRunning = true;
+        });
+      }, function(err) {
+        console.log(err);
+        Notification(err.data.message, 'error');
+      })
+  }
+  $scope.stop = function(vpnName) {
+    AjaxService.stopVPN(vpnName)
+      .then(function s(response) {
+        Notification("VPN server is removed" , 'success');
+        _.each($scope.listVPN, function (v) {
+          if (v.name == vpnName) v.isRunning = false;
+        });
+      }, function(err) {
+        Notification(err.data.message, 'error');
+      })
+  }
 
   $scope.download = function(vpnName) {
     AjaxService.getVPN(vpnName)
@@ -34,7 +59,9 @@ var dsp_vpnCtrl = function($scope, SafeApply, $uibModal, SocketService, Notifica
         case 'success':
           Notification("VPN Created", 'success');
           $scope.notify ="";
-          $scope.listVPN.push($scope.newVPN);
+          $scope.listVPN.push({
+            name: $scope.newVPN,
+            isRunning: false});
           break;
         case 'error':
           Notification({message: data.message}, 'error');
@@ -62,10 +89,10 @@ var dsp_vpnCtrl = function($scope, SafeApply, $uibModal, SocketService, Notifica
     //Cancel image
     modalInstance.result.then(function ok() {
       var nameToDelete = p.name;
-      console.log(AjaxService);
       AjaxService.removeVPN(nameToDelete)
         .then(function s(response) {
-          $scope.listVPN = _.without($scope.listVPN, nameToDelete);
+          $scope.listVPN = _.filter($scope.listVPN, function(e) {
+            e.name != nameToDelete});
         }, function e(data) {
           Notification({message: data.message}, 'error');
         })
