@@ -4,6 +4,7 @@ const configData = require('../data/config.js');
 const dockerImages = require('../data/docker-images.js');
 const dockerComposer = require('mydockerjs').dockerComposer;
 const dockerManager = require('mydockerjs').docker;
+const dockerVPN = require('./docker_vpn.js');
 const imageMgr = require('mydockerjs').imageMgr;
 const path = require('path');
 const async = require('async');
@@ -210,6 +211,8 @@ exports.composeDown = function composeDown(params, body, callback, notifyCallbac
           // Detach service containers
           if (dockerTools.isService(theContainer.Name)) {
             dockerTools.detachServiceToNetwork(theContainer.Name, n.name, cc);
+          } else if (dockerVPN.isVPN(theContainer.Name)) {
+            dockerVPN.detach(theContainer.Name, n.name, cc);
           } else {
             cc(null);
           }

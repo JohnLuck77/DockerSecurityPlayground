@@ -194,8 +194,18 @@ self.init = function(onSuccess) {
       vpnName: vpnName
       }});
   }
+  self.detachVPN = function(vpnName, networkName) {
+    return $http({
+            method: "DELETE",
+            headers: { 'content-type': "application/json;charset=UTF-8"},
+            url: apiUrl+ "vpn/network",
+            data: {
+      vpnName: vpnName,
+      networkName : networkName
+      }});
+  }
   self.attachToVPN = function(vpnName, networkName) {
-    return $http.post(apiUrl+ "vpn/attach", {
+    return $http.post(apiUrl+ "vpn/network", {
       networkName: networkName,
       vpnName: vpnName
     });
