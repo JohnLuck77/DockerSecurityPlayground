@@ -614,6 +614,7 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
   $scope.attach = function attach() {
     console.log("In attach");
     console.log($scope.selectedNetwork);
+    console.log($scope.selectedVPN);
     AjaxService.attachToVPN($scope.selectedVPN, $scope.selectedNetwork)
       .then(function successCallback(response) {
         Notification("VPN Attached");
@@ -628,7 +629,7 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
   }
 
   $scope.changedVPN = function (v) {
-    $scope.selectedVPN = v;
+    $scope.selectedVPN = v.name;
   }
 
 

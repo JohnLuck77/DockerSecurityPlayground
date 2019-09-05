@@ -168,6 +168,15 @@ function getAllVPN(vpnDir, callback) {
       }, (err) => cb(err, namesObj));
     }], (err, data) => callback(err, data));
 }
+function isVPN(vpnName) {
+  return vpnName.startsWith(prefixVPN);
+}
+function attach (vpnName, networkName, cb) {
+  dockerJS.connectToNetwork(isVPN(vpnName) ? vpnName : prefixVPN + vpnName, networkName, cb);
+}
+function detach (vpnName, networkName, cb) {
+  dockerJS.disconnectFromNetwork(isVPN(vpnName) ? vpnName : prefixVPN + vpnName, networkName, cb);
+}
 
 exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
@@ -176,3 +185,6 @@ exports.getAllVPN = getAllVPN;
 exports.removeVPN = removeVPN;
 exports.runVPN = runVPN;
 exports.stopVPN = stopVPN;
+exports.attach = attach;
+exports.detach = detach;
+exports.isVPN = isVPN;
