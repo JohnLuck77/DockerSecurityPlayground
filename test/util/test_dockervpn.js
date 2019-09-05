@@ -36,7 +36,7 @@ describe('Test docker vpn', () => {
     helper.copyDir(testDirTpl, testDir);
     done();
   });
-  it.only('Should create vpn', (done) => {
+  it('Should create vpn', (done) => {
     expect(true).to.be.ok
     dockerVPN.createVPN("main", testDir, (err, data) => {
       expect(err).to.be.null;
@@ -73,6 +73,14 @@ describe('Test docker vpn', () => {
       done();
     });
   });
+  it.only('Should say true if is a vpn', (done) => {
+    const name = "dsp-vpn-test";
+    const noVPN = "test";
+    expect(dockerVPN.isVPN(name)).to.be.ok;
+    expect(dockerVPN.isVPN(noVPN)).to.not.be.ok;
+    done();
+  });
+
   it('Should get all vpns', (done) => {
     const names = ['existent', 'existent2'];
     const isRunning = [true, false];
