@@ -17,6 +17,14 @@ function createVolume(name, cb) {
   log.info("[DOCKER VPN] Create Volume");
   dockerJS.createVolume(prefixVPN + name, cb);
 }
+function _getBaseIp(subnet) {
+  const splitted = subnet.split("/");
+  return splitted[0].replace(/.$/,"0");
+}
+function _getSubnet(ip) {
+  return ip.replace(/.$/, "0") + "/24";
+}
+
 function ovpnGenConfig(name, cb, notifyCallback) {
   log.info("[DOCKER VPN] Generate Configuration ");
   var options = {
@@ -67,6 +75,38 @@ function ovpnGetClient(name, cb, notifyCallback) {
   }
   dockerJS.run(vpnImage, cb, options, notifyCallback);
 }
+
+function ovpnEditVPN(vpnName, certificateName, networkSubnet, netmask, cb) {
+  log.info("[DOCKER VPN] Attach the network");
+  const theName = prefixVPN + vpnName;
+  const baseIp = _getBaseIp(networkSubnet);
+
+  var options = {
+    logDriver: "none",
+    rm: true,
+    volumes: [
+      {hostPath: theName, containerPath: "/etc/openvpn"}
+    ]
+  };
+  const cmd = `echo push \\"route ${baseIp} ${netmask}\\" >> /etc/openvpn/openvpn.conf `
+  dockerJS.exec(theName, cmd,  cb);
+}
+function ovpnRemoveVPN(vpnName, certificateName, networkSubnet, netmask, cb) {
+
+  log.info("[DOCKER VPN] Detach the network");
+  const theName = prefixVPN + vpnName;
+  const baseIp = _getBaseIp(networkSubnet);
+  // var options = {
+  //   logDriver: "none",
+  //   rm: true,
+  //   volumes: [
+  //     {hostPath: theName, containerPath: "/etc/openvpn"}
+  //   ]
+  // }
+
+  const cmd = `sed -i "/${baseIp}/d" /etc/openvpn/openvpn.conf`
+  dockerJS.exec(theName, cmd, cb);
+}
 function runVPN(vpnName, hostPort, cb) {
   var theName = prefixVPN + vpnName;
   log.info(`[DOCKER VPN] Run ${theName} VPN  `);
@@ -112,6 +152,17 @@ function getCertificateVPN(name, certificatesPath, callback) {
     }
   });
 }
+
+function editCertificateVPN(name, certificatesPath, network, subnet, callback) {
+  var theName = prefixVPN + name;
+  async.waterfall([(cb) => getCertificateVPN(name, certificatesPath, cb),
+    (certificate, cb) => {
+      const newCert = addPushRoute(certificate, network, subnet);
+      cb(null, newCert);
+    }, (newCertificate, cb) => fs.writeFile(path.join(certificatesPath, `${theName}.ovpn`), newCertificate, cb)],
+    (err) => callback(err));
+}
+
 
 // TBD Remove certificate
 function removeVPN(name, vpnDir, callback) {
@@ -166,20 +217,59 @@ function getAllVPN(vpnDir, callback) {
           }
         });
       }, (err) => cb(err, namesObj));
+    },
+    (namesObj, cb) => {
+      async.eachSeries(namesObj, (n, c) => {
+        dockerJS.getInfoContainer(prefixVPN + n.name, (err, data) => {
+            const networks = data.NetworkSettings;
+          console.log("ERR");
+            console.log(networks);
+            c(err);
+        })
+     });
     }], (err, data) => callback(err, data));
 }
 function isVPN(vpnName) {
   return vpnName.startsWith(prefixVPN);
 }
-function attach (vpnName, networkName, cb) {
-  dockerJS.connectToNetwork(isVPN(vpnName) ? vpnName : prefixVPN + vpnName, networkName, cb);
+function attach (vpnName, certificatesPath, networkName, callback) {
+  async.waterfall([
+  (cb) => dockerJS.getNetwork(networkName, cb),
+    (data, cb) => {
+      const networkSubnet = data.IPAM.Config[0].Subnet;
+      cb(null, networkSubnet);
+  },
+  (networkSubnet, cb) => ovpnEditVPN(vpnName, certificatesPath, networkSubnet, "255.255.255.0", cb),
+  (ret, cb) => dockerJS.connectToNetwork(isVPN(vpnName) ? vpnName : prefixVPN + vpnName, networkName, cb)
+  ],(err) => callback(err));
 }
-function detach (vpnName, networkName, cb) {
-  dockerJS.disconnectFromNetwork(isVPN(vpnName) ? vpnName : prefixVPN + vpnName, networkName, cb);
+function detach (vpnName, certificatesPath, networkName, callback) {
+  async.waterfall([
+  (cb) => dockerJS.getNetwork(networkName, cb),
+    (data, cb) => {
+      const networkSubnet = data.IPAM.Config[0].Subnet;
+      cb(null, networkSubnet);
+  },
+  (networkSubnet, cb) => ovpnRemoveVPN(vpnName, certificatesPath, networkSubnet, "255.255.255.0", cb),
+  (data, cb) => dockerJS.disconnectFromNetwork(isVPN(vpnName) ? vpnName : prefixVPN + vpnName, networkName, cb)
+  ],(err) => callback(err));
+  }
+
+function addPushRoute (openvpnConfig, network, subnet) {
+  const toAppend = `push "route ${network} ${subnet}"`;
+  return openvpnConfig +  toAppend + "\n";
 }
+
+function removePushRoute (openvpnConfig, network, subnet) {
+  const join =  openvpnConfig.split("\n").filter((v) => !v.includes(network)).join("\n");
+  return join;
+}
+
+// function addPushRoute(openvpnConfig)
 
 exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
+exports.editCertificateVPN = editCertificateVPN;
 exports.getNames = getNames;
 exports.getAllVPN = getAllVPN;
 exports.removeVPN = removeVPN;
@@ -187,4 +277,6 @@ exports.runVPN = runVPN;
 exports.stopVPN = stopVPN;
 exports.attach = attach;
 exports.detach = detach;
+exports.addPushRoute = addPushRoute;
+exports.removePushRoute = removePushRoute;
 exports.isVPN = isVPN;

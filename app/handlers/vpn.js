@@ -36,7 +36,7 @@ function attach(req, res) {
     // Check if repo dir parameter exists
     (cb) => Checker.checkParams(req.body, ['networkName', 'vpnName'], cb),
     // (cb) => dockerVPN.runVPN(req.body.vpnName, 1194, cb),
-    (cb) => dockerVPN.attach(req.body.vpnName, req.body.networkName, cb)
+    (cb) => dockerVPN.attach(req.body.vpnName, vpnDir, req.body.networkName, cb)
   ], (err) => httpHelper.response(res, err));
 }
 function detach(req, res) {
@@ -44,8 +44,11 @@ function detach(req, res) {
     // Check if repo dir parameter exists
     (cb) => Checker.checkParams(req.body, ['networkName', 'vpnName'], cb),
     // (cb) => dockerVPN.runVPN(req.body.vpnName, 1194, cb),
-    (cb) => dockerJS.disconnectFromNetwork(reb.body.vpnName, req.body.networkName, cb)
-  ], (err) => httpHelper.response(res, err));
+    (cb) => dockerVPN.detach(req.body.vpnName, vpnDir, req.body.networkName, cb)
+  ], (err) => {
+    console.log(err);
+    httpHelper.response(res, err);
+  });
 }
 
 function run(req, res) {
@@ -56,8 +59,6 @@ function run(req, res) {
   ], (err) => httpHelper.response(res, err));
 }
 function stop(req, res) {
-  console.log("REQ");
-  console.log(req.body);
   async.waterfall([
     // Check if repo dir parameter exists
     (cb) => Checker.checkParams(req.body, ['vpnName'], cb),
