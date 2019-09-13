@@ -623,6 +623,18 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
         Notification({message:"Server error: "+error.data.message}, 'error');
       });
   }
+  $scope.detach = function detach() {
+    console.log("In detach");
+    console.log($scope.selectedNetwork);
+    console.log($scope.selectedVPN);
+    AjaxService.detachFromVPN($scope.selectedVPN, $scope.selectedNetwork)
+      .then(function successCallback(response) {
+        Notification("VPN Attached");
+      }, function errorCallback(error) {
+        console.log(error);
+        Notification({message:"Server error: "+error.data.message}, 'error');
+      });
+  }
 
   $scope.changedNetwork = function (n) {
     $scope.selectedNetwork = n.name;

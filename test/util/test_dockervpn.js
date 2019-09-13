@@ -57,6 +57,23 @@ describe('Test docker vpn', () => {
       done();
     });
   });
+it.only("Should edit configuration data", (done) => {
+	const network = "192.168.1.0";
+	const subnet = "255.255.255.0";
+	const updatedConfiguration = `client
+nobind
+dev tun
+remote-cert-tls server
+remote localhost 1194 udp
+redirect-gateway def1
+push "route 192.168.1.0 255.255.255.0"\n`;
+  dockerVPN.editCertificateVPN("existent3", testDir, network, subnet, (err) => {
+		const f = fs.readFileSync(path.join(appRoot.toString(), "test", "util", "vpnDir", "dsp-vpn-existent3.ovpn"))
+		expect(err).to.be.null;
+		expect(f.toString()).to.be.eql(updatedConfiguration);
+		done();
+  });
+});
 
   it('Should get names', (done) => {
     const names = ['existent', 'existent2'];
@@ -73,13 +90,38 @@ describe('Test docker vpn', () => {
       done();
     });
   });
-  it.only('Should say true if is a vpn', (done) => {
+  it('Should say true if is a vpn', (done) => {
     const name = "dsp-vpn-test";
     const noVPN = "test";
     expect(dockerVPN.isVPN(name)).to.be.ok;
     expect(dockerVPN.isVPN(noVPN)).to.not.be.ok;
     done();
   });
+  it.only("SHould add push /remove route", (done) => {
+    const testNetwork = "192.168.1.0";
+    const vpnconfig = `client
+nobind
+dev tun
+remote-cert-tls server
+remote localhost 1194 udp
+key-direction 1
+redirect-gateway def1
+`;
+    const vpnconfigAfter = `client
+nobind
+dev tun
+remote-cert-tls server
+remote localhost 1194 udp
+key-direction 1
+redirect-gateway def1
+push "route ${testNetwork} 255.255.255.0"
+`;
+
+    expect(dockerVPN.addPushRoute(vpnconfig, testNetwork, "255.255.255.0")).to.be.eql(vpnconfigAfter);
+    expect(dockerVPN.removePushRoute(vpnconfigAfter, testNetwork)).to.be.eql(vpnconfig);
+    expect(dockerVPN.removePushRoute(vpnconfig, testNetwork)).to.be.eql(vpnconfig);
+    done();
+  })
 
   it('Should get all vpns', (done) => {
     const names = ['existent', 'existent2'];
