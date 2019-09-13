@@ -194,7 +194,7 @@ self.init = function(onSuccess) {
       vpnName: vpnName
       }});
   }
-  self.detachVPN = function(vpnName, networkName) {
+  self.detachFromVPN = function(vpnName, networkName) {
     return $http({
             method: "DELETE",
             headers: { 'content-type': "application/json;charset=UTF-8"},
