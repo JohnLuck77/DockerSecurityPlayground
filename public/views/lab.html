@@ -155,6 +155,24 @@
 <<<<<<< HEAD
 =======
 				<uib-tab index="4" heading="VPN">
+          <table class="table table-hover ">
+                    <tbody>
+                      <tr ng-repeat="il in listVPN">
+                        <td class="text-center">{{il.name}}</td>
+                        <td class="text-center">
+                          <select 
+                             ng-model="il.selectedNetwork" 
+                             ng-change="changedSelectedNetwork(il, sn)" 
+                             ng-required=true
+                             ng-options="sn for sn in il.attachedNetworks" class="form-control select_style" id="selector_imagelist"> 
+                          </select>
+                        </td>
+                        <td class="text-center">
+                          <button class="btn btn-small btn-primary" ng-click="detach(il)" >Detach</div>
+                        </td>
+                      </tr>
+                  </tbody>
+          </table>
 					<form class="form-horizontal" >
 						<div class="form-group">
 							<label class="control-label col-sm-2" for="network">Network:</label>
@@ -178,10 +196,10 @@
 								</select>
 							</div>
 						</div>
+        
 						<div class="form-group">
 							<div class="col-sm-offset-2 col-sm-10">
 								<button ng-click="attach()" class="btn btn-default">Attach</button>
-								<button ng-click="detach()" class="btn btn-default">Detach</button>
 							</div>
 						</div>
 					</form> 

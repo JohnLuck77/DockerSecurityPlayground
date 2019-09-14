@@ -55,16 +55,24 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
   toEditName = ''	;
   $scope.listContainers = {};
   $scope.init = function() {
-    console.log("DSP_INIT");
+    console.log("DSP_NIT");
 
   // Get vpn
   AjaxService.getAllVPN()
     .then(function s(response) {
       $scope.listVPN = _.filter(response.data.data, function(v) {
-        console.log(v);
         return v.isRunning;
       });
-    }, function(err) {
+      _.each($scope.listVPN, function(v) {
+        if (v.attachedNetworks.length > 0) {
+          v.selectedNetwork = v.attachedNetworks[0];
+        } else {
+          v.selectedNetwork = {};
+        }
+      })
+    }, function error(err) {
+      console.log("ERR");
+      console.log(err);
       Notification(err.message, 'error');
     })
 
@@ -612,24 +620,30 @@ var dsp_LabCtrl = function($scope, ServerResponse, $log, SocketService, dockerIm
   $scope.loading = function loading() {}
 
   $scope.attach = function attach() {
-    console.log("In attach");
-    console.log($scope.selectedNetwork);
-    console.log($scope.selectedVPN);
     AjaxService.attachToVPN($scope.selectedVPN, $scope.selectedNetwork)
       .then(function successCallback(response) {
         Notification("VPN Attached");
+        $scope.listVPN.forEach(function (v) {
+          if (v == $scope.selectedVPN) {
+            $scope.attachedNetworks.push($scope.selectedNetwork);
+          }
+        })
       }, function errorCallback(error) {
         console.log(error);
         Notification({message:"Server error: "+error.data.message}, 'error');
       });
   }
-  $scope.detach = function detach() {
-    console.log("In detach");
-    console.log($scope.selectedNetwork);
-    console.log($scope.selectedVPN);
-    AjaxService.detachFromVPN($scope.selectedVPN, $scope.selectedNetwork)
+  $scope.changedSelectedNetwork  = function(il, sn) {
+    il.selectedNetwork = sn;
+  }
+  $scope.detach = function detach(selectedVPN) {
+    AjaxService.detachFromVPN(selectedVPN.name, selectedVPN.selectedNetwork)
       .then(function successCallback(response) {
         Notification("VPN Attached");
+        selectedVPN.attachedNetworks = selectedVPN.attachedNetworks.filter(function(f) {
+          return f !== selectedVPN.selectedNetwork;
+        });
+        $scope.selectedNetwork = {};
       }, function errorCallback(error) {
         console.log(error);
         Notification({message:"Server error: "+error.data.message}, 'error');

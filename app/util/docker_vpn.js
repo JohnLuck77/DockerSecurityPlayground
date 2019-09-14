@@ -94,7 +94,7 @@ function ovpnEditVPN(vpnName, certificateName, networkSubnet, netmask, cb) {
 function ovpnRemoveVPN(vpnName, certificateName, networkSubnet, netmask, cb) {
 
   log.info("[DOCKER VPN] Detach the network");
-  const theName = prefixVPN + vpnName;
+  const theName = isVPN(vpnName)? vpnName : prefixVPN + vpnName;
   const baseIp = _getBaseIp(networkSubnet);
   // var options = {
   //   logDriver: "none",
@@ -220,13 +220,14 @@ function getAllVPN(vpnDir, callback) {
     },
     (namesObj, cb) => {
       async.eachSeries(namesObj, (n, c) => {
+        n.attachedNetworks = [];
         dockerJS.getInfoContainer(prefixVPN + n.name, (err, data) => {
-            const networks = data.NetworkSettings;
-          console.log("ERR");
-            console.log(networks);
-            c(err);
+        const networks = JSON.parse(data);
+        const r = Object.keys(networks.NetworkSettings.Networks).filter((x) => x !== "bridge" );
+        n.attachedNetworks = r;
+        c(err);
         })
-     });
+      }, (err) => cb(err, namesObj));
     }], (err, data) => callback(err, data));
 }
 function isVPN(vpnName) {
