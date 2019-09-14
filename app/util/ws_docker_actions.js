@@ -13,6 +13,8 @@ const LabStates = require('./LabStates');
 const appUtils = require('../util/AppUtils');
 const fs = require('fs');
 const rimraf = require('rimraf');
+const localConfigPath = require(path.join(appRoot.path, 'config', 'local.config.json'));
+const vpnDir = path.join(appRoot.path, localConfigPath.config.vpn_dir);
 
 
 const dockerAction = require(`${appRoot}/app/data/docker_actions`);
@@ -212,7 +214,7 @@ exports.composeDown = function composeDown(params, body, callback, notifyCallbac
           if (dockerTools.isService(theContainer.Name)) {
             dockerTools.detachServiceToNetwork(theContainer.Name, n.name, cc);
           } else if (dockerVPN.isVPN(theContainer.Name)) {
-            dockerVPN.detach(theContainer.Name, n.name, cc);
+            dockerVPN.detach(theContainer.Name, vpnDir, n.name, cc);
           } else {
             cc(null);
           }

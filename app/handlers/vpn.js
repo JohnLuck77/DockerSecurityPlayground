@@ -35,7 +35,6 @@ function attach(req, res) {
   async.waterfall([
     // Check if repo dir parameter exists
     (cb) => Checker.checkParams(req.body, ['networkName', 'vpnName'], cb),
-    // (cb) => dockerVPN.runVPN(req.body.vpnName, 1194, cb),
     (cb) => dockerVPN.attach(req.body.vpnName, vpnDir, req.body.networkName, cb)
   ], (err) => httpHelper.response(res, err));
 }
