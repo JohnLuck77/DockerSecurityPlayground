@@ -4,7 +4,6 @@ const configData = require('../data/config.js');
 const dockerImages = require('../data/docker-images.js');
 const dockerComposer = require('mydockerjs').dockerComposer;
 const dockerManager = require('mydockerjs').docker;
-const dockerVPN = require('./docker_vpn.js');
 const imageMgr = require('mydockerjs').imageMgr;
 const path = require('path');
 const async = require('async');
@@ -14,7 +13,6 @@ const appUtils = require('../util/AppUtils');
 const fs = require('fs');
 const rimraf = require('rimraf');
 const localConfigPath = require(path.join(appRoot.path, 'config', 'local.config.json'));
-const vpnDir = path.join(appRoot.path, localConfigPath.config.vpn_dir);
 
 
 const dockerAction = require(`${appRoot}/app/data/docker_actions`);
@@ -213,9 +211,7 @@ exports.composeDown = function composeDown(params, body, callback, notifyCallbac
           // Detach service containers
           if (dockerTools.isService(theContainer.Name)) {
             dockerTools.detachServiceToNetwork(theContainer.Name, n.name, cc);
-          } else if (dockerVPN.isVPN(theContainer.Name)) {
-            dockerVPN.detach(theContainer.Name, vpnDir, n.name, cc);
-          } else {
+          }  else {
             cc(null);
           }
         }, (err) => c(err));

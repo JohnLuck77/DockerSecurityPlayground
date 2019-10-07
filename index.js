@@ -15,7 +15,6 @@ const repoHandler = require('./app/handlers/repos');
 const dockerImages = require('./app/handlers/docker-images');
 const serviceHandler = require('./app/handlers/services')
 const dockerfilesHandler = require('./app/handlers/dockerfiles')
-const vpnHandler = require('./app/handlers/vpn');
 // const installationHandler = require('./app/handlers/installation.js');
 const treeRoutes = require('./app/handlers/tree_routes.js');
 const Checker = require('./app/util/AppChecker.js');
@@ -200,9 +199,6 @@ app.get('/api/resource', treeRoutes.resourceSearch);
 app.post('/api/tree/repo', treeRoutes.uploadFile);
 app.delete('/api/tree/repo/', treeRoutes.deleteFile);
 
-// VPN API
-app.get('/dsp_v1/vpn', vpnHandler.getAll)
-app.get('/dsp_v1/vpn/:name', vpnHandler.get)
 
 app.use('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);

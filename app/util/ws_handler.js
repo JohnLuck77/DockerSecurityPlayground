@@ -3,7 +3,6 @@ const appRoot = require('app-root-path');
 const WebSocket = require('ws');
 const installationHandler = require('./ws_installation.js');
 const dockerActions = require('./ws_docker_actions.js');
-const wsVPNHandler = require('./ws_vpn.js');
 const wsGitHandler = require('./ws_git_manager');
 const AppUtils = require('../util/AppUtils');
 const cmd = require('node-cmd');
@@ -110,15 +109,6 @@ function manageRemoveImage(ws, jsonMessage) {
     sendResponse(ws, err);
   })
 }
-function manageVPNCreate(ws, jsonMessage) {
-  const body = jsonMessage.body;
-  const params = jsonMessage.params;
-  wsVPNHandler.createVPN(params, (err) => {
-    sendResponse(ws, err);
-  }, (dataline) => {
-    sendProgressMessage(ws, dataline);
-  });
-}
 function manageDownloadImages(ws, jsonMessage) {
   const body = jsonMessage.body;
   const params = jsonMessage.params;
@@ -210,9 +200,6 @@ exports.init = function init(server) {
           break;
         case 'docker_down':
           manageDockerDown(ws, jsonMessage);
-          break;
-        case 'vpn_create':
-          manageVPNCreate(ws, jsonMessage);
           break;
         case 'remove_image':
           manageRemoveImage(ws, jsonMessage);
