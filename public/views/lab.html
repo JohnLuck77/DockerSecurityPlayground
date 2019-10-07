@@ -152,59 +152,6 @@
 						</div>
 					</div>
 				</uib-tab>
-<<<<<<< HEAD
-=======
-				<uib-tab index="4" heading="VPN">
-          <table class="table table-hover ">
-                    <tbody>
-                      <tr ng-repeat="il in listVPN">
-                        <td class="text-center">{{il.name}}</td>
-                        <td class="text-center">
-                          <select 
-                             ng-model="il.selectedNetwork" 
-                             ng-change="changedSelectedNetwork(il, sn)" 
-                             ng-required=true
-                             ng-options="sn for sn in il.attachedNetworks" class="form-control select_style" id="selector_imagelist"> 
-                          </select>
-                        </td>
-                        <td class="text-center">
-                          <button class="btn btn-small btn-primary" ng-click="detach(il)" >Detach</div>
-                        </td>
-                      </tr>
-                  </tbody>
-          </table>
-					<form class="form-horizontal" >
-						<div class="form-group">
-							<label class="control-label col-sm-2" for="network">Network:</label>
-							<div class="col-sm-10">
-								<select 
-									 ng-model="selectedNetwork" 
-									 ng-change="changedNetwork(selectedNetwork)" 
-									 ng-required=true
-									 ng-options="il.name for il in networkList" class="form-control select_style" id="selector_imagelist"> 
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="control-label col-sm-2" for="vpn">VPN:</label>
-							<div class="col-sm-10">
-								<select 
-									 ng-model="selectedVPN" 
-									 ng-change="changedVPN(selectedVPN)" 
-									 ng-required=true
-									 ng-options="il.name for il in listVPN" class="form-control select_style" id="selector_imagelist"> 
-								</select>
-							</div>
-						</div>
-        
-						<div class="form-group">
-							<div class="col-sm-offset-2 col-sm-10">
-								<button ng-click="attach()" class="btn btn-default">Attach</button>
-							</div>
-						</div>
-					</form> 
-				</uib-tab>
->>>>>>> Added ovpn creation, tbd detach, push route and other things
 			</uib-tabset>
 
 
