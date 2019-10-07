@@ -64,8 +64,22 @@ function ovpnGetClient(name, cb, notifyCallback) {
   }
     dockerJS.run(vpnImage, cb, options, notifyCallback);
   }
+function runVPN(vpnName, hostPort, cb) {
+  log.info(`[DOCKER VPN] Run ${vpnName} VPN towards `);
+  var options = {
+    name: vpnName,
+    detached: true,
+    cap_add: "NET_ADMIN",
+    ports: { '1194/udp': hostPort},
+    volumes: [
+      {hostPath: vpnName, containerPath: "/etc/openvpn"}
+    ]
+  }
+    dockerJS.run(vpnImage, cb, options);
+}
 
 function createVPN(name, outputPath, callback, notifyCallback) {
+  log.info("[DOCKER VPN] Create VPN");
   // Create volume
   async.waterfall([
     (cb) => checker.checkAlphabetic(name, cb),
@@ -128,3 +142,4 @@ exports.createVPN = createVPN;
 exports.getCertificateVPN = getCertificateVPN;
 exports.getNames = getNames;
 exports.removeVPN = removeVPN;
+exports.runVPN = runVPN;
