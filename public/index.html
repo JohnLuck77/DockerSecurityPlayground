@@ -84,7 +84,6 @@ mxBasePath = 'assets/mxgraph/';
     <script src="app/controllers/labCtrl.js"> </script>
     <script src="app/controllers/labelsCtrl.js"> </script>
     <script src="app/controllers/imagesCtrl.js"> </script>
-    <script src="app/controllers/vpnCtrl.js"> </script>
     <script src="app/controllers/dockerfileCtrl.js"> </script>
     <script src="app/controllers/repoCtrl.js"> </script>
     <script src="app/controllers/docker_tools_controller.js"></script>
@@ -198,7 +197,6 @@ return _factory;
   .controller("dockerfileCtrl", dsp_dockerfileCtrl)
   .controller('actionController', DSP_GraphEditorController)
   .controller('DockerToolsCtrl', DSP_DockerToolsCtrl)
-  .controller('vpnCtrl', dsp_vpnCtrl)
 
   .controller("repoCtrl", dsp_RepoCtrl)
   .run(['$anchorScroll', function($anchorScroll) {
@@ -259,10 +257,6 @@ templateUrl: "views/labels.html" ,
   .when("/configuration", {
 templateUrl: "views/configuration.html" ,
   controller: "configCtrl"
-})
-  .when("/vpn", {
-templateUrl: "views/vpn.html" ,
-  controller: "vpnCtrl"
 })
   .when("/images", {
 templateUrl: "views/images.html" ,

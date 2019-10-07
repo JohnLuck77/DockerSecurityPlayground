@@ -9,7 +9,7 @@ var NETWORK_TYPE = 'Network';
 var theParent = null;
 var Graph__NetworkElementLabel = {
   type : NETWORK_ELEMENT_TYPE,
-  contentHTML : '<h5 id="toptitle" class="no-selection" style="margin:0px;">'+NETWORK_ELEMENT_TYPE+'</h5><br>'+
+  contentHTML : '<h5 id="toptitle" class="no-selection" style="margin:0px;">'+NETWORK_ELEMENT_TYPE+'</h5><h6></h6><br>'+
   '<img src="assets/docker_image_icons/host.png" width="48" height="48">'
 };
 var elementToEdit = '';
@@ -142,6 +142,10 @@ function Graph__getElement(e) {
 function Graph__update(cell, newName, oldName) {
   var label = cell.value;
   var $html = $('<div />',{html:label});
+  if(!$html.find('h6').length){
+    $html.find('h5').after("<h6></h6>")
+  }
+
   // replace "Headline" with "whatever" => Doesn't work
   $html.find('h5').html(newName);
   // Change subnet
@@ -149,6 +153,20 @@ function Graph__update(cell, newName, oldName) {
     var network = Model__AppScope.getNetwork(newName);
     $html.find('h6').html(network.subnet);
   }
+  var currentContainer = Model__AppScope.getContainer(newName)
+  var infoElement = $html.find('h6')
+  infoElement.empty()
+  console.log(infoElement);
+  _.each(currentContainer.ports, function(hostPort, containerPort) {
+    console.log("QUI");
+    var stringToAppend = hostPort + " => " + containerPort
+    var eleToAppend = $("<div/>").text(stringToAppend)
+    console.log(eleToAppend);
+    infoElement.append(eleToAppend);
+  })
+
+
+  // Update the model with the new value
   var newValue = $html.html();
   theGraph.model.setValue(cell, newValue)
 
