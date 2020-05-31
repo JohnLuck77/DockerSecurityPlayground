@@ -1,21 +1,21 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+title: 'Issue Template'
+labels: 'DigiCert'
+assignees: 'TRUE '
 
----
+--- "No HATE JUST LOVE INFINITLY !!"
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. Dont really Know I juste HAVE to SHARED and LINK !!!
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1. Go to 'https://github.com/JohnLuck77/DockerSecurityPlayground/edit/master/.github/ISSUE_TEMPLATE/bug_report.md'
+2. Click on 'The Folder'
+3. Scroll down to 'THE END'
+4. See error AND FIND IT !!
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
